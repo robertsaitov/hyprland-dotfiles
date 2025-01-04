@@ -1,7 +1,7 @@
 stow_dirs = $(wildcard */)
 .PHONY : stow
 stow :
-	stow --target $(HOME) --verbose $(stow_dirs)
+	stow --target $(HOME) --verbose $(stow_dirs) --adopt
 
 .PHONY : stow-verbose
 # verbosity goes from 0 to 4

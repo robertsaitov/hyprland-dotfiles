@@ -142,4 +142,4 @@ hyprctl reload
 
 # wallbash
 "${ScrDir}/swwwallbash.sh" "$getWall"
-
+$ScrDir/wbarstylegen.sh

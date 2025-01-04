@@ -74,7 +74,7 @@ Wall_Set()
     --transition-duration 0.7 \
     --transition-fps 60 \
     --invert-y \
-    --transition-pos "$( hyprctl cursorpos )"    
+    --transition-pos "$( hyprctl cursorpos )"
 
 }
 
@@ -142,4 +142,6 @@ if [ $? -eq 1 ] ; then
 fi
 
 Wall_Set
+$ScrDir/wbarstylegen.sh
+killall -SIGUSR2 waybar
 
