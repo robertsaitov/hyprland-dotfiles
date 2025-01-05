@@ -143,5 +143,6 @@ fi
 
 Wall_Set
 $ScrDir/wbarstylegen.sh
-killall -SIGUSR2 waybar
+killall waybar
+waybar &
 
