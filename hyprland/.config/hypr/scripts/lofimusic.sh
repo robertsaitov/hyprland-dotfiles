@@ -16,6 +16,7 @@ declare -A online_music=(
   ["YT - Star Wars Lofi 🌌🎶"]="https://youtu.be/wv38obj0D_k?si=g-Rc8yymeP2lN-W6"
   ["YT - Soviet Lofi🎶"]="https://youtu.be/9Mgh0iXhkX8?si=D6AHoE0Dl_062IrX"
   ["YT - Baldurs Gate OST🎶"]="https://www.youtube.com/watch?v=BXluPbtRLqE"
+  ["YT - Lord Of The Rings Lofi🎶"]="https://youtu.be/fnVlN327sn0?si=XgrnevjX2Cx41fh_"
 )
 
 # Populate local_music array with files from music directory and subdirectories
