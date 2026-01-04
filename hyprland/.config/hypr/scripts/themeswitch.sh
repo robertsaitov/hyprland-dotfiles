@@ -140,6 +140,32 @@ ln -fs $ConfDir/hypr/themes/${ThemeSet}.conf $ConfDir/hypr/themes/theme.conf
 hyprctl reload
 
 
+# opencode theme
+if command -v opencode >/dev/null 2>&1; then
+    case "${ThemeSet}" in
+        "Catppuccin-Mocha")    opencodeTheme="catppuccin" ;;
+        "Catppuccin-Latte")    opencodeTheme="catppuccin" ;;
+        "Tokyo-Night")         opencodeTheme="tokyonight" ;;
+        "Gruvbox-Retro")       opencodeTheme="gruvbox" ;;
+        "Decay-Green")         opencodeTheme="system" ;;
+        "Rose-Pine")           opencodeTheme="system" ;;
+        "Material-Sakura")      opencodeTheme="system" ;;
+        "Graphite-Mono")        opencodeTheme="system" ;;
+        "Cyberpunk-Edge")      opencodeTheme="system" ;;
+        "Frosted-Glass")       opencodeTheme="system" ;;
+        *)                     opencodeTheme="system" ;;
+    esac
+    # if opencode was not run before, we need to create the dir
+    mkdir -p ~/.config/opencode
+    tmpConfig=$(mktemp)
+    if [ -f ~/.config/opencode/config.json ]; then
+        jq --arg theme "$opencodeTheme" '.theme = $theme' ~/.config/opencode/config.json > "$tmpConfig" 2>/dev/null && mv "$tmpConfig" ~/.config/opencode/config.json
+    else
+        echo "{\"theme\": \"$opencodeTheme\"}" > ~/.config/opencode/config.json
+    fi
+fi
+
+
 # wallbash
 "${ScrDir}/swwwallbash.sh" "$getWall"
 $ScrDir/wbarstylegen.sh
