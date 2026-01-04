@@ -32,6 +32,8 @@
 # Dynamic dunst config
 .config/dunst/Wall-Dcol.conf
 .config/dunst/dunst.conf
+.config/dunst/icons/hyprdots.svg
+.config/dunst/icons/vol/
 
 # Dynamic waybar config
 .config/waybar/config.jsonc
