@@ -147,12 +147,12 @@ if command -v opencode >/dev/null 2>&1; then
         "Catppuccin-Latte")    opencodeTheme="catppuccin" ;;
         "Tokyo-Night")         opencodeTheme="tokyonight" ;;
         "Gruvbox-Retro")       opencodeTheme="gruvbox" ;;
-        "Decay-Green")         opencodeTheme="system" ;;
-        "Rose-Pine")           opencodeTheme="system" ;;
-        "Material-Sakura")      opencodeTheme="system" ;;
-        "Graphite-Mono")        opencodeTheme="system" ;;
-        "Cyberpunk-Edge")      opencodeTheme="system" ;;
-        "Frosted-Glass")       opencodeTheme="system" ;;
+        "Decay-Green")         opencodeTheme="everforest" ;;
+        "Rose-Pine")           opencodeTheme="rosepine" ;;
+        "Material-Sakura")      opencodeTheme="material" ;;
+        "Graphite-Mono")        opencodeTheme="one-dark" ;;
+        "Cyberpunk-Edge")      opencodeTheme="opencode" ;;
+        "Frosted-Glass")       opencodeTheme="nord" ;;
         *)                     opencodeTheme="system" ;;
     esac
     # if opencode was not run before, we need to create the dir
