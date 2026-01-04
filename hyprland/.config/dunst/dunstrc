@@ -434,7 +434,7 @@
 # vim: ft=cfg
 
 [Type-1]
-    summary = "Update!"
+    summary = "t1"
     format = "<b>%a</b>"
 
 [Type-2]
@@ -451,15 +451,15 @@
     #default_icon = /path/to/icon
 
 [urgency_low]
-    background = "#22232A"
-    foreground = "#E2DFD1"
-    frame_color = "#262C48"
+    background = "#34303C"
+    foreground = "#A5B75F"
+    frame_color = "#562C77"
     icon = "~/.config/dunst/icons/hyprdots.svg"
-    timeout = 10
+    timeout = 4
 
 [urgency_normal]
-    background = "#4D5C78"
-    foreground = "#E2DFD1"
-    frame_color = "#622D28"
+    background = "#79376F"
+    foreground = "#A5B75F"
+    frame_color = "#986C8C"
     icon = "~/.config/dunst/icons/hyprdots.svg"
-    timeout = 10
+    timeout = 4
