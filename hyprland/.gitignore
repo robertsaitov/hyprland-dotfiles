@@ -48,12 +48,6 @@
 .config/hypr/scripts/1
 .config/hypr/scripts/2
 
-# Monitor config (hardware specific)
-.config/hypr/monitors.conf
-
-# User preferences (local overrides)
-.config/hypr/userprefs.conf
-
 # Kvantum and Qt color directories (contain extracted themes)
 .config/Kvantum/Catppuccin-*/
 .config/qt5ct/colors/
