@@ -151,7 +151,6 @@ if command -v opencode >/dev/null 2>&1; then
         "Rose-Pine")           opencodeTheme="rosepine" ;;
         "Material-Sakura")      opencodeTheme="material" ;;
         "Graphite-Mono")        opencodeTheme="one-dark" ;;
-        "Cyberpunk-Edge")      opencodeTheme="opencode" ;;
         "Frosted-Glass")       opencodeTheme="nord" ;;
         *)                     opencodeTheme="system" ;;
     esac
