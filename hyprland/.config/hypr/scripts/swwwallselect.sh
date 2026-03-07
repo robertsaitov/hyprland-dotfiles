@@ -30,16 +30,20 @@ r_override="element{border-radius:${elem_border}px;} listview{columns:6;spacing:
 
 
 # launch rofi menu
-currentWall=`basename $fullPath`
-RofiSel=$( find "${wallPath}" -type f \( -iname "*.gif" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) -exec basename {} \; | sort | while read rfile
+currentWall=`basename "$fullPath"`
+wallFiles=$(find "${wallPath}" -type f \( -iname "*.gif" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) -exec basename {} \; | sort)
+currentIndex=$(printf '%s\n' "${wallFiles}" | awk -v wall="${currentWall}" 'BEGIN{idx=0} {if($0==wall){print idx; found=1; exit} idx++} END{if(!found) print 0}')
+
+RofiIdx=$(printf '%s\n' "${wallFiles}" | while IFS= read -r rfile
 do
-    echo -en "$rfile\x00icon\x1f${cacheDir}/${gtkTheme}/${rfile}\n"
-done | rofi -dmenu -theme-str "${r_override}" -config "${RofiConf}" -select "${currentWall}")
+    title=$(printf '%s\n' "${rfile%.*}" | sed -E 's/[_-]+/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2)); print}')
+    printf '%s\x00icon\x1f%s\n' "$title" "${cacheDir}/${gtkTheme}/${rfile}"
+done | rofi -dmenu -format i -theme-str "${r_override}" -config "${RofiConf}" -select "${currentIndex}")
 
 
 # apply wallpaper
-if [ ! -z "${RofiSel}" ] ; then
+if [ ! -z "${RofiIdx}" ] ; then
+    RofiSel=$(printf '%s\n' "${wallFiles}" | awk -v idx="$((RofiIdx + 1))" 'NR==idx{print; exit}')
     "${ScrDir}/swwwallpaper.sh" -s "${wallPath}/${RofiSel}"
     dunstify "t1" -a " ${RofiSel}" -i "${cacheDir}/${gtkTheme}/${RofiSel}" -r 91190 -t 2200
 fi
-
