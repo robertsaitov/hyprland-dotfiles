@@ -127,8 +127,13 @@ sed -i "/^gtk-icon-theme-name=/c\gtk-icon-theme-name=${IconSet}" $ConfDir/gtk-3.
 
 
 # gtk4
-rm $ConfDir/gtk-4.0
-ln -s /usr/share/themes/$ThemeSet/gtk-4.0 $ConfDir/gtk-4.0
+Gtk4ThemeDir="/usr/share/themes/$ThemeSet/gtk-4.0"
+if [ -d "$Gtk4ThemeDir" ] ; then
+    rm -rf "$ConfDir/gtk-4.0"
+    ln -s "$Gtk4ThemeDir" "$ConfDir/gtk-4.0"
+else
+    echo "GTK4 theme missing for $ThemeSet; keeping existing $ConfDir/gtk-4.0"
+fi
 
 
 # flatpak GTK
