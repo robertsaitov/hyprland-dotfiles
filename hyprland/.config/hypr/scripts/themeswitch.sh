@@ -113,6 +113,13 @@ kvantummanager --set "${ThemeSet}"
 # qt5ct
 sed -i "/^color_scheme_path=/c\color_scheme_path=$ConfDir/qt5ct/colors/${ThemeSet}.conf" $ConfDir/qt5ct/qt5ct.conf
 IconSet=`awk -F "'" '$0 ~ /gsettings set org.gnome.desktop.interface icon-theme/{print $2}' $ConfDir/hypr/themes/${ThemeSet}.conf`
+ColorScheme=`awk -F "'" '$0 ~ /gsettings set org.gnome.desktop.interface color-scheme/{print $2}' $ConfDir/hypr/themes/${ThemeSet}.conf`
+[ -z "${ColorScheme}" ] && ColorScheme="prefer-dark"
+if [ "${ColorScheme}" = "prefer-light" ] ; then
+    PreferDark=0
+else
+    PreferDark=1
+fi
 sed -i "/^icon_theme=/c\icon_theme=${IconSet}" $ConfDir/qt5ct/qt5ct.conf
 
 
@@ -124,16 +131,11 @@ sed -i "/^icon_theme=/c\icon_theme=${IconSet}" $ConfDir/qt6ct/qt6ct.conf
 # gtk3
 sed -i "/^gtk-theme-name=/c\gtk-theme-name=${ThemeSet}" $ConfDir/gtk-3.0/settings.ini
 sed -i "/^gtk-icon-theme-name=/c\gtk-icon-theme-name=${IconSet}" $ConfDir/gtk-3.0/settings.ini
-
-
-# gtk4
-Gtk4ThemeDir="/usr/share/themes/$ThemeSet/gtk-4.0"
-if [ -d "$Gtk4ThemeDir" ] ; then
-    rm -rf "$ConfDir/gtk-4.0"
-    ln -s "$Gtk4ThemeDir" "$ConfDir/gtk-4.0"
-else
-    echo "GTK4 theme missing for $ThemeSet; keeping existing $ConfDir/gtk-4.0"
-fi
+sed -i "/^gtk-application-prefer-dark-theme=/c\gtk-application-prefer-dark-theme=${PreferDark}" $ConfDir/gtk-3.0/settings.ini
+sed -i "/^gtk-color-scheme=/c\gtk-color-scheme=${ColorScheme}" $ConfDir/gtk-3.0/settings.ini
+gsettings set org.gnome.desktop.interface gtk-theme "${ThemeSet}"
+gsettings set org.gnome.desktop.interface icon-theme "${IconSet}"
+gsettings set org.gnome.desktop.interface color-scheme "${ColorScheme}"
 
 
 # flatpak GTK
