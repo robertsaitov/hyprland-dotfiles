@@ -14,7 +14,7 @@ ofc=`dnf check-update | wc -l`
 
 # Check for flatpak updates
 if pkg_installed flatpak ; then
-    fpk=`flatpak remote-ls --updates | wc -l`
+    fpk=`printf 'n\n' | flatpak update 2>/dev/null | awk '/^[[:space:]]*[0-9]+\./ {count++} END {print count+0}'`
     fpk_disp="\n󰏓 Flatpak $fpk"
     fpk_exup="; flatpak update"
 else
@@ -26,7 +26,7 @@ fi
 if command -v npm &> /dev/null ; then
     npm_outdated=$(npm outdated -g --depth=0 2>/dev/null | tail -n +2 | wc -l)
     npm_disp="\n npm $npm_outdated"
-    npm_exup="; npm update -g"
+    npm_exup="; sudo npm update -g"
 else
     npm_outdated=0
     npm_disp=""
@@ -46,4 +46,3 @@ fi
 if [ "$1" == "up" ] ; then
     kitty --title systemupdate sh -c "sudo dnf upgrade $fpk_exup$npm_exup"
 fi
-
