@@ -168,7 +168,7 @@ nvidia_driver_tooltip() {
   if [[ "${nvidia_driver_status}" == "missing" ]]; then
     echo "󰒓 Driver: 󰅖 missing"
   else
-    echo "󰒓 Driver: ${nvidia_driver_version:-unknown} 󰄬 present"
+    echo "󰒓 Driver: ${nvidia_driver_version:-unknown}"
   fi
 }
 
