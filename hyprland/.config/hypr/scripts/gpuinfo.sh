@@ -29,10 +29,13 @@ query() {
 touch "${gpuQ}" 
 
 if lsmod | grep -q 'nouveau'; then 
-      echo "nvidia_gpu=\"Linux\"" >>"${gpuQ}" #? Incase If nouveau is installed 
-      echo "nvidia_flag=1 # Using nouveau an open-source nvidia driver" >>"${gpuQ}"
+       echo "nvidia_gpu=\"Linux\"" >>"${gpuQ}" #? Incase If nouveau is installed
+      echo "nvidia_driver_status=\"present\"" >>"${gpuQ}"
+      echo "nvidia_driver_version=\"nouveau\"" >>"${gpuQ}"
+       echo "nvidia_flag=1 # Using nouveau an open-source nvidia driver" >>"${gpuQ}"
 elif  command -v nvidia-smi &> /dev/null; then
-nvidia_gpu=$(nvidia-smi --query-gpu=gpu_name --format=csv,noheader,nounits | head -n 1)
+nvidia_gpu=$(nvidia-smi --query-gpu=gpu_name --format=csv,noheader,nounits 2>/dev/null | head -n 1)
+nvidia_driver_version=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader,nounits 2>/dev/null | head -n 1)
   if [[ -n "${nvidia_gpu}" ]] ; then  # Check for NVIDIA GPU
       if  [[ "${nvidia_gpu}" == *"NVIDIA-SMI has failed"* ]]; then  #? Second Layer for dGPU 
         echo "nvidia_flag=0 # NVIDIA-SMI has failed" >> "${gpuQ}"
@@ -40,10 +43,24 @@ nvidia_gpu=$(nvidia-smi --query-gpu=gpu_name --format=csv,noheader,nounits | hea
         nvidia_address=$(lspci | grep -Ei "VGA|3D" | grep -i "${nvidia_gpu/NVIDIA /}" | cut -d' ' -f1)
         {   echo "nvidia_address=\"${nvidia_address}\""
             echo "nvidia_gpu=\"${nvidia_gpu/NVIDIA /}\""
+            echo "nvidia_driver_status=\"present\""
+            echo "nvidia_driver_version=\"${nvidia_driver_version}\""
             echo "nvidia_flag=1"
         } >> "${gpuQ}"
       fi
   fi
+fi
+
+if ! grep -q "nvidia_driver_status=" "${gpuQ}" && lspci -nn | grep -E "(VGA|3D)" | grep -iq "10de"; then
+  nvidia_lspci=$(lspci -nn | grep -Ei "VGA|3D" | grep -m 1 "10de")
+  nvidia_gpu=$(echo "${nvidia_lspci}" | sed -E 's/.*NVIDIA Corporation //; s/ \[[[:xdigit:]]{4}:[[:xdigit:]]{4}\].*//; s/ \(rev [^)]+\)//')
+  nvidia_address=$(echo "${nvidia_lspci}" | cut -d' ' -f1)
+  {   echo "nvidia_address=\"${nvidia_address}\""
+      echo "nvidia_gpu=\"${nvidia_gpu:-GPU}\""
+      echo "nvidia_driver_status=\"missing\""
+      echo "nvidia_driver_version=\"\""
+      echo "nvidia_flag=1 # NVIDIA driver missing"
+  } >> "${gpuQ}"
 fi
 
 if lspci -nn | grep -E "(VGA|3D)" | grep -iq "1002"; then 
@@ -147,6 +164,33 @@ get_icons() {
     echo $icons
 }
 
+nvidia_driver_tooltip() {
+  if [[ "${nvidia_driver_status}" == "missing" ]]; then
+    echo "󰒓 Driver: 󰅖 missing"
+  else
+    echo "󰒓 Driver: ${nvidia_driver_version:-unknown} 󰄬 present"
+  fi
+}
+
+get_nvidia_driver_info() {
+  if [[ "${nvidia_gpu}" == "Linux" ]] || lsmod | grep -q 'nouveau'; then
+    nvidia_driver_status="present"
+    nvidia_driver_version="${nvidia_driver_version:-nouveau}"
+    return
+  fi
+
+  if command -v nvidia-smi &> /dev/null; then
+    nvidia_driver_version=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader,nounits 2>/dev/null | head -n 1)
+    if [[ -n "${nvidia_driver_version}" ]] && [[ "${nvidia_driver_version}" != *"NVIDIA-SMI has failed"* ]]; then
+      nvidia_driver_status="present"
+      return
+    fi
+  fi
+
+  nvidia_driver_status="missing"
+  nvidia_driver_version=""
+}
+
 generate_json() {
   # get emoji and icon based on temperature and utilization
   icons=$(get_icons "$temperature" "$utilization")
@@ -156,6 +200,9 @@ generate_json() {
 
   # emoji=$(get_temperature_emoji "${temperature}")
   local json="{\"text\":\"${thermo} ${temperature}°C\", \"tooltip\":\"${primary_gpu}\n${thermo} Temperature: ${temperature}°C ${emoji}"
+  if [[ -n "${nvidia_driver_status}" ]]; then
+    json+="\n$(nvidia_driver_tooltip)"
+  fi
 #? Soon Add Something incase needed.
   declare -A tooltip_parts
   if [[ -n "${utilization}" ]]; then tooltip_parts["\n$speedo Utilization: "]="${utilization}%" ; fi
@@ -203,14 +250,35 @@ intel_GPU() { #? Function to query basic intel GPU
 }
 
 nvidia_GPU() { #? Function to query Nvidia GPU
-    primary_gpu="NVIDIA ${nvidia_gpu}"
-  if [[ "${nvidia_gpu}" == "Linux" ]]; then general_query ; return ; fi #? Open source driver
+    primary_gpu="NVIDIA ${nvidia_gpu:-GPU}"
+  if [[ "${nvidia_gpu}" == "Linux" ]]; then
+    nvidia_driver_status="present"
+    nvidia_driver_version="${nvidia_driver_version:-nouveau}"
+    general_query
+    return
+  fi #? Open source driver
 #? Tired Flag for not using nvidia-smi if GPU is in suspend mode. 
-if ${tired}; then is_suspend="$(cat /sys/bus/pci/devices/0000:"${nvidia_address}"/power/runtime_status)"
+if ${tired} && [[ -r "/sys/bus/pci/devices/0000:${nvidia_address}/power/runtime_status" ]]; then is_suspend="$(cat /sys/bus/pci/devices/0000:"${nvidia_address}"/power/runtime_status)"
    if [[ ${is_suspend} == *"suspend"* ]]; then
-      printf '{"text":"󰤂", "tooltip":"%s ⏾ Suspended mode"}' "${primary_gpu}"; exit ;fi
+      if [[ -n "${nvidia_driver_status}" ]]; then
+        printf '{"text":"󰤂", "tooltip":"%s ⏾ Suspended mode\\n%s"}' "${primary_gpu}" "$(nvidia_driver_tooltip)"
+      else
+        printf '{"text":"󰤂", "tooltip":"%s ⏾ Suspended mode"}' "${primary_gpu}"
+      fi
+      exit ;fi
 fi
-  gpu_info=$(nvidia-smi --query-gpu=temperature.gpu,utilization.gpu,clocks.current.graphics,clocks.max.graphics,power.draw,power.max_limit --format=csv,noheader,nounits)
+  get_nvidia_driver_info
+  if [[ "${nvidia_driver_status}" == "missing" ]]; then
+    printf '{"text":"󰜺", "tooltip":"%s\\n%s"}' "${primary_gpu}" "$(nvidia_driver_tooltip)"
+    exit
+  fi
+  gpu_info=$(nvidia-smi --query-gpu=temperature.gpu,utilization.gpu,clocks.current.graphics,clocks.max.graphics,power.draw,power.max_limit --format=csv,noheader,nounits 2>/dev/null)
+  if [[ -z "${gpu_info}" ]] || [[ "${gpu_info}" == *"NVIDIA-SMI has failed"* ]]; then
+    nvidia_driver_status="missing"
+    nvidia_driver_version=""
+    printf '{"text":"󰜺", "tooltip":"%s\\n%s"}' "${primary_gpu}" "$(nvidia_driver_tooltip)"
+    exit
+  fi
   # Split the comma-separated values into an array
   IFS=',' read -ra gpu_data <<< "${gpu_info}"
   # Extract individual values
