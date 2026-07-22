@@ -1,12 +1,19 @@
 #!/usr/bin/env sh
 
 
-# lock instance
+# Queue concurrent picker/theme changes instead of silently dropping one.
+lockDir="/tmp/hyrpdots$(id -u)swwwallpaper.lock"
+for i in $(seq 1 300) ; do
+    mkdir "${lockDir}" 2>/dev/null && break
+    sleep 0.1
+done
 
-lockFile="/tmp/hyrpdots$(id -u)swwwallpaper.lock"
-[ -e "$lockFile" ] && echo "An instance of the script is already running..." && exit 1
-touch "${lockFile}"
-trap 'rm -f ${lockFile}' EXIT
+if [ ! -d "${lockDir}" ] ; then
+    echo "ERROR: timed out waiting for wallpaper update"
+    exit 1
+fi
+
+trap 'rmdir "${lockDir}"' EXIT
 
 
 # define functions
