@@ -134,15 +134,21 @@ while getopts "nps:" option ; do
 done
 
 
-# check swww daemon and set wall
-
-swww query
-if [ $? -eq 1 ] ; then
+# Start swww on login, then wait for its socket before sending the image.
+if ! swww query > /dev/null 2>&1 ; then
     swww-daemon &
+    for i in $(seq 1 20) ; do
+        swww query > /dev/null 2>&1 && break
+        sleep 0.1
+    done
+fi
+
+if ! swww query > /dev/null 2>&1 ; then
+    echo "ERROR: swww daemon did not become ready"
+    exit 1
 fi
 
 Wall_Set
 $ScrDir/wbarstylegen.sh
 killall waybar
 waybar &
-
