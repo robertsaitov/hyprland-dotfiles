@@ -75,13 +75,17 @@ Wall_Set()
     fi
 
     #? getting the real path as symlinks too glitch
+    cursorPos=$(hyprctl cursorpos | tr -d ' ')
+    case "${cursorPos}" in
+        -*|*,-* ) cursorPos="center" ;;
+    esac
     swww img "$(readlink "${wallSet}")" \
     --transition-bezier .43,1.19,1,.4 \
     --transition-type "$xtrans" \
     --transition-duration 0.7 \
     --transition-fps 60 \
     --invert-y \
-    --transition-pos "$( hyprctl cursorpos )"
+    --transition-pos="${cursorPos}"
 
 }
 
@@ -155,7 +159,7 @@ if ! swww query > /dev/null 2>&1 ; then
     exit 1
 fi
 
-Wall_Set
+Wall_Set || exit 1
 $ScrDir/wbarstylegen.sh
 killall waybar
 waybar &
