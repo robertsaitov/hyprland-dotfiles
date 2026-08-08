@@ -7,9 +7,9 @@ RofiConf="${XDG_CONFIG_HOME:-$HOME/.config}/rofi/themeselect.rasi"
 
 
 # scale for monitor x res
-x_monres=$(hyprctl -j monitors | jq '.[] | select(.focused==true) | .width')
-monitor_scale=$(hyprctl -j monitors | jq '.[] | select (.focused == true) | .scale' | sed 's/\.//')
-x_monres=$(( x_monres * 17 / monitor_scale ))
+x_monres=$(hyprctl -j monitors | jq '.[] | select(.focused == true) | .width')
+monitor_scale=$(hyprctl -j monitors | jq '.[] | select(.focused == true) | .scale')
+x_monres=$(awk -v width="$x_monres" -v scale="$monitor_scale" 'BEGIN { printf "%d", width * 17 / (scale * 100) }')
 
 
 # set rofi override
@@ -32,4 +32,3 @@ if [ ! -z $ThemeSel ] ; then
     "${ScrDir}/themeswitch.sh" -s $ThemeSel
     dunstify "t1" -a " ${ThemeSel}" -i "~/.config/dunst/icons/hyprdots.png" -r 91190 -t 2200
 fi
-

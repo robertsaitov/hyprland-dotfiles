@@ -10,7 +10,7 @@ modules_dir="$waybar_dir/modules"
 conf_ctl="$waybar_dir/config.ctl"
 in_file="$waybar_dir/modules/style.css"
 out_file="$waybar_dir/style.css"
-src_file="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/themes/theme.conf"
+src_file="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/themes/theme.lua"
 
 if [ "$EnableWallDcol" -eq 1 ] ; then
     ln -fs $waybar_dir/themes/Wall-Dcol.css $waybar_dir/themes/theme.css
@@ -119,7 +119,7 @@ envsubst < $in_file > $out_file
 
 # override rounded couners
 
-hypr_border=`awk -F '=' '{if($1~" rounding ") print $2}' $src_file | sed 's/ //g'`
+hypr_border=`awk -F '=' '$1 ~ /^[[:space:]]*rounding[[:space:]]*$/ {gsub(/[[:space:],]/, "", $2); print $2; exit}' $src_file`
 if [ "$hypr_border" == "0" ] ; then
     sed -i "/border-radius: /c\    border-radius: 0px;" $out_file
 fi
@@ -127,9 +127,8 @@ fi
 
 # restart waybar
 
-if [ "$reload_flag" == "1" ] ; then
+if [ "$reload_flag" == "1" ] && [ "$1" != "--no-restart" ] ; then
     killall waybar
     waybar > /dev/null 2>&1 &
     # killall -SIGUSR2 waybar
 fi
-

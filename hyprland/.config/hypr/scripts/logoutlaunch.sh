@@ -21,7 +21,7 @@ fi
 # detect monitor res
 x_mon=$(hyprctl -j monitors | jq '.[] | select(.focused==true) | .width')
 y_mon=$(hyprctl -j monitors | jq '.[] | select(.focused==true) | .height')
-hypr_scale=$(hyprctl -j monitors | jq '.[] | select (.focused == true) | .scale' | sed 's/\.//')
+hypr_scale=$(hyprctl -j monitors | jq '.[] | select(.focused == true) | .scale' | awk '{printf "%d", $1 * 100}')
 
 
 # scale config layout and style
@@ -58,4 +58,3 @@ wlStyle=`envsubst < $wlTmplt`
 
 # launch wlogout
 wlogout -b $wlColms -c 0 -r 0 -m 0 --layout $wLayout --css <(echo "$wlStyle") --protocol layer-shell
-

@@ -19,9 +19,9 @@ fi
 
 
 # scale for monitor x res
-x_monres=$(hyprctl -j monitors | jq '.[] | select(.focused==true) | .width')
-monitor_scale=$(hyprctl -j monitors | jq '.[] | select (.focused == true) | .scale' | sed 's/\.//')
-x_monres=$(( x_monres * 17 / monitor_scale ))
+x_monres=$(hyprctl -j monitors | jq '.[] | select(.focused == true) | .width')
+monitor_scale=$(hyprctl -j monitors | jq '.[] | select(.focused == true) | .scale')
+x_monres=$(awk -v width="$x_monres" -v scale="$monitor_scale" 'BEGIN { printf "%d", width * 17 / (scale * 100) }')
 
 
 # set rofi override

@@ -10,9 +10,9 @@ Rofilaunch="${XDG_CONFIG_HOME:-$HOME/.config}/rofi/config.rasi"
 
 
 # scale for monitor x res
-x_monres=$(hyprctl -j monitors | jq '.[] | select(.focused==true) | .width')
-monitor_scale=$(hyprctl -j monitors | jq '.[] | select (.focused == true) | .scale' | sed 's/\.//')
-x_monres=$(( x_monres * 18 / monitor_scale ))
+x_monres=$(hyprctl -j monitors | jq '.[] | select(.focused == true) | .width')
+monitor_scale=$(hyprctl -j monitors | jq '.[] | select(.focused == true) | .scale')
+x_monres=$(awk -v width="$x_monres" -v scale="$monitor_scale" 'BEGIN { printf "%d", width * 18 / (scale * 100) }')
 
 
 # set rofi override
@@ -33,4 +33,3 @@ if [ ! -z $RofiSel ] ; then
     cp "${RofiStyle}/${RofiSel}.rasi" "${Rofilaunch}"
     dunstify "t1" -a " ${RofiSel} applied..." -i "$RofiAssets/$RofiSel.png" -r 91190 -t 2200
 fi
-

@@ -3,7 +3,7 @@
 # set variables
 ScrDir=`dirname "$(realpath "$0")"`
 source $ScrDir/globalcontrol.sh
-ThemeSet="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/themes/theme.conf"
+ThemeSet="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/themes/theme.lua"
 RofiConf="${XDG_CONFIG_HOME:-$HOME/.config}/rofi/steam/gamelauncher_${1:-5}.rasi"
 
 
@@ -63,4 +63,3 @@ if [ ! -z "$RofiSel" ] ; then
     ${steamlaunch} -applaunch "${launchid} [gamemoderun %command%]" &
     dunstify "t1" -a "Launching ${RofiSel}..." -i ${SteamThumb}/${launchid}_header.jpg -r 91190 -t 2200
 fi
-

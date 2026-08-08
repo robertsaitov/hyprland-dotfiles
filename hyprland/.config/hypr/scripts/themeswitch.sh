@@ -77,7 +77,7 @@ getName=`basename "$getWall"`
 ln -fs "$getWall" "$ConfDir/swww/wall.set"
 ln -fs "$cacheDir/${ThemeSet}/${getName}.rofi" "$ConfDir/swww/wall.rofi"
 ln -fs "$cacheDir/${ThemeSet}/${getName}.blur" "$ConfDir/swww/wall.blur"
-"${ScrDir}/swwwallpaper.sh"
+"${ScrDir}/swwwallpaper.sh" -b
 
 if [ $? -ne 0 ] ; then
     echo "ERROR: Unable to set wallpaper"
@@ -112,8 +112,8 @@ kvantummanager --set "${ThemeSet}"
 
 # qt5ct
 sed -i "/^color_scheme_path=/c\color_scheme_path=$ConfDir/qt5ct/colors/${ThemeSet}.conf" $ConfDir/qt5ct/qt5ct.conf
-IconSet=`awk -F "'" '$0 ~ /gsettings set org.gnome.desktop.interface icon-theme/{print $2}' $ConfDir/hypr/themes/${ThemeSet}.conf`
-ColorScheme=`awk -F "'" '$0 ~ /gsettings set org.gnome.desktop.interface color-scheme/{print $2}' $ConfDir/hypr/themes/${ThemeSet}.conf`
+IconSet=`awk -F "'" '$0 ~ /gsettings set org.gnome.desktop.interface icon-theme/{print $2}' $ConfDir/hypr/themes/${ThemeSet}.lua`
+ColorScheme=`awk -F "'" '$0 ~ /gsettings set org.gnome.desktop.interface color-scheme/{print $2}' $ConfDir/hypr/themes/${ThemeSet}.lua`
 [ -z "${ColorScheme}" ] && ColorScheme="prefer-dark"
 if [ "${ColorScheme}" = "prefer-light" ] ; then
     PreferDark=0
@@ -144,7 +144,7 @@ flatpak --user override --env=ICON_THEME="${IconSet}"
 
 
 # hyprland
-ln -fs $ConfDir/hypr/themes/${ThemeSet}.conf $ConfDir/hypr/themes/theme.conf
+ln -fs $ConfDir/hypr/themes/${ThemeSet}.lua $ConfDir/hypr/themes/theme.lua
 hyprctl reload config-only
 
 

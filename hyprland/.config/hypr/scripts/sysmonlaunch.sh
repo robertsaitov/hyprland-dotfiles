@@ -4,7 +4,8 @@
 commands_to_check=("htop" "btop" "top")
 
 # Determine the terminal emulator to use
-term=$(cat $HOME/.config/hypr/keybindings.conf | grep ^'$term' | cut -d '=' -f2)
+term=$(awk -F '"' '/^local term = / {print $2; exit}' "$HOME/.config/hypr/keybindings.lua")
+term=${term:-kitty}
 
 # Try to execute the first available command in the specified terminal emulator
 for command in "${commands_to_check[@]}"; do

@@ -3,7 +3,7 @@
 pkill -x rofi && exit
 ConfDir="${XDG_CONFIG_HOME:-$HOME/.config}"
 keyConfDir="$ConfDir/hypr"
-keyConf="$keyConfDir/hyprland.conf $keyConfDir/keybindings.conf $keyConfDir/userprefs.conf  $*"
+keyConf="$keyConfDir/hyprland.lua $keyConfDir/keybindings.lua $keyConfDir/userprefs.lua  $*"
 tmpMapDir="/tmp"
 tmpMap="$tmpMapDir/hyprdots-keybinds.jq"
 

@@ -124,8 +124,10 @@ fi
 
 # evaluate options
 
-while getopts "nps:" option ; do
+while getopts "bnps:" option ; do
     case $option in
+    b ) # skip Waybar; the caller will update it after applying theme state
+        skip_waybar=1 ;;
     n ) # set next wallpaper
         xtrans="grow"
         Wall_Change n ;;
@@ -160,6 +162,8 @@ if ! swww query > /dev/null 2>&1 ; then
 fi
 
 Wall_Set || exit 1
-$ScrDir/wbarstylegen.sh
-killall waybar
-waybar &
+if [ "$skip_waybar" != "1" ] ; then
+    $ScrDir/wbarstylegen.sh --no-restart
+    killall waybar
+    waybar &
+fi
